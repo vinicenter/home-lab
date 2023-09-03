@@ -1,0 +1,111 @@
+services:
+  adguardhome:
+    image: "adguard/adguardhome:latest"
+    command:
+      - "--no-check-update"
+      - "-c"
+      - "/opt/adguardhome/conf/AdGuardHome.yaml"
+      - "-w"
+      - "/opt/adguardhome/work"
+    entrypoint:
+      - "/opt/adguardhome/AdGuardHome"
+    network_mode: "bridge"
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "784:784/udp"
+      - "3000:80/tcp"
+      - "853:853/tcp"
+    restart: "always"
+    volumes:
+      - "./volumes/adguardhome_conf:/opt/adguardhome/conf"
+      - "./volumes/adguardhome_work:/opt/adguardhome/work"
+    working_dir: "/opt/adguardhome/work"
+
+  cloudflare-tunnel:
+    command:
+      - "tunnel"
+      - "--no-autoupdate"
+      - "run"
+      - "--token"
+      - "$CLOUDFLARE_TUNNEL_TOKEN"
+    entrypoint:
+      - "cloudflared"
+      - "--no-autoupdate"
+    image: "cloudflare/cloudflared:latest"
+    network_mode: "bridge"
+    restart: "always"
+    user: "nonroot"
+    working_dir: "/home/nonroot"
+
+  home-assistant:
+    entrypoint:
+      - "/init"
+    environment:
+      - "PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+      - "LANG=C.UTF-8"
+      - "S6_BEHAVIOUR_IF_STAGE2_FAILS=2"
+      - "S6_CMD_WAIT_FOR_SERVICES_MAXTIME=0"
+      - "S6_CMD_WAIT_FOR_SERVICES=1"
+      - "S6_SERVICES_READYTIME=50"
+      - "WHEELS_LINKS=https://wheels.home-assistant.io/musllinux/"
+      - "S6_SERVICES_GRACETIME=220000"
+    image: "homeassistant/home-assistant:latest"
+    network_mode: "host"
+    restart: "always"
+    volumes:
+      - "./volumes/homeassistant_config:/config"
+    working_dir: "/config"
+
+  uptime-kuma:
+    command:
+      - "node"
+      - "server/server.js"
+    entrypoint:
+      - "/usr/bin/dumb-init"
+      - "--"
+      - "extra/entrypoint.sh"
+    environment:
+      - "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+      - "NODE_VERSION=16.20.2"
+      - "YARN_VERSION=1.22.19"
+      - "UPTIME_KUMA_IS_CONTAINER=1"
+    image: "louislam/uptime-kuma:latest"
+    network_mode: "bridge"
+    ports:
+      - "3001:3001/tcp"
+    restart: "always"
+    volumes:
+      - "./volumes/uptime-kuma_data:/app/data"
+    working_dir: "/app"
+
+  jellyfin:
+    entrypoint:
+      - "/init"
+    environment:
+      - "PUID=1000"
+      - "PGID=1000"
+      - "TZ=Etc/UTC"
+      - "PATH=/lsiopy/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+      - "HOME=/root"
+      - "LANGUAGE=en_US.UTF-8"
+      - "LANG=en_US.UTF-8"
+      - "TERM=xterm"
+      - "S6_CMD_WAIT_FOR_SERVICES_MAXTIME=0"
+      - "S6_VERBOSITY=1"
+      - "S6_STAGE2_HOOK=/docker-mods"
+      - "VIRTUAL_ENV=/lsiopy"
+      - "LSIO_FIRST_PARTY=true"
+      - "NVIDIA_DRIVER_CAPABILITIES=compute,video,utility"
+    image: "lscr.io/linuxserver/jellyfin:latest"
+    network_mode: "bridge"
+    ports:
+      - "8096:8096/tcp"
+      - "8920:8920/tcp"
+    restart: "unless-stopped"
+    volumes:
+      - "./volumes/jellyfin_config:/config"
+      - "./volumes/jellyfin_data:/data"
+    working_dir: "/"
+
+version: "3.6"
