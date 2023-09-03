@@ -18,8 +18,8 @@ services:
       - "853:853/tcp"
     restart: "always"
     volumes:
-      - "./volumes/adguardhome_conf:/opt/adguardhome/conf"
-      - "./volumes/adguardhome_work:/opt/adguardhome/work"
+      - "$VOLUMES_BASE_PATH/adguardhome_conf:/opt/adguardhome/conf"
+      - "$VOLUMES_BASE_PATH/adguardhome_work:/opt/adguardhome/work"
     working_dir: "/opt/adguardhome/work"
 
   cloudflare-tunnel:
@@ -54,7 +54,7 @@ services:
     network_mode: "host"
     restart: "always"
     volumes:
-      - "./volumes/homeassistant_config:/config"
+      - "$VOLUMES_BASE_PATH/homeassistant_config:/config"
     working_dir: "/config"
 
   uptime-kuma:
@@ -76,7 +76,7 @@ services:
       - "3001:3001/tcp"
     restart: "always"
     volumes:
-      - "./volumes/uptime-kuma_data:/app/data"
+      - "$VOLUMES_BASE_PATH/uptime-kuma_data:/app/data"
     working_dir: "/app"
 
   jellyfin:
@@ -104,8 +104,8 @@ services:
       - "8920:8920/tcp"
     restart: "unless-stopped"
     volumes:
-      - "./volumes/jellyfin_config:/config"
-      - "$JELLYFIN_DATA_PATH:/data"
+      - "$VOLUMES_BASE_PATH/jellyfin_config:/config"
+      - "$VOLUMES_BASE_PATH/jellyfin_data:/data"
     working_dir: "/"
 
 version: "3.6"
