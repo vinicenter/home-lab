@@ -105,7 +105,7 @@ services:
     restart: "unless-stopped"
     volumes:
       - "./volumes/jellyfin_config:/config"
-      - "./volumes/jellyfin_data:/data"
+      - "$JELLYFIN_DATA_PATH:/data"
     working_dir: "/"
 
 version: "3.6"
