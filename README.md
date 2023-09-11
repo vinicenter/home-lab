@@ -1,1 +1,1 @@
-# home-server-infra
+# home-lab-infra
