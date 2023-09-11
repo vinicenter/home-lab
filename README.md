@@ -1,1 +1,1 @@
-# home-lab-infra
+# home-lab
