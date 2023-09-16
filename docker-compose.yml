@@ -117,7 +117,7 @@ services:
       - "TZ=America/Sao_Paulo"
     volumes:
       - "$VOLUMES_BASE_PATH/transmission_config:/config"
-      - "$VOLUMES_BASE_PATH/transmission_data:/download"
+      - "$VOLUMES_BASE_PATH/transmission_data:/downloads"
     ports:
       - "9091:9091"
       - "51413:51413"
