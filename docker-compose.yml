@@ -108,4 +108,19 @@ services:
       - "$VOLUMES_BASE_PATH/jellyfin_data:/data"
     working_dir: "/"
 
+  transmission:
+    image: "lscr.io/linuxserver/transmission"
+    container_name: "transmission"
+    environment:
+      - "PUID=1000"
+      - "PGID=1000"
+      - "TZ=America/Sao_Paulo"
+    volumes:
+      - "$VOLUMES_BASE_PATH/transmission_config:/config"
+      - "$VOLUMES_BASE_PATH/transmission_data:/download"
+    ports:
+      - "9091:9091"
+      - "51413:51413"
+      - "51413:51413/udp"
+    restart: "unless-stopped"
 version: "3.6"
