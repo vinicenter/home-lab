@@ -1,17 +1,26 @@
 services:
-  pihole:
-    image: "pihole/pihole:latest"
+  adguardhome:
+    image: "adguard/adguardhome:latest"
+    command:
+      - "--no-check-update"
+      - "-c"
+      - "/opt/adguardhome/conf/AdGuardHome.yaml"
+      - "-w"
+      - "/opt/adguardhome/work"
+    entrypoint:
+      - "/opt/adguardhome/AdGuardHome"
+    network_mode: "bridge"
     ports:
       - "53:53/tcp"
       - "53:53/udp"
+      - "784:784/udp"
       - "3000:80/tcp"
-    environment:
-      - "TZ=America/Chicago"
-      - "WEBPASSWORD=$PIHOLE_WEBPASSWORD"
+      - "853:853/tcp"
+    restart: "always"
     volumes:
-      - "$VOLUMES_BASE_PATH/pihole_etc:/etc/pihole"
-      - "$VOLUMES_BASE_PATH/pihole_dnsmasq_d:/etc/dnsmasq.d"
-    restart: "unless-stopped"
+      - "$VOLUMES_BASE_PATH/adguardhome_conf:/opt/adguardhome/conf"
+      - "$VOLUMES_BASE_PATH/adguardhome_work:/opt/adguardhome/work"
+    working_dir: "/opt/adguardhome/work"
 
   cloudflare-tunnel:
     command:
