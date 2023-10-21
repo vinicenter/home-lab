@@ -6,8 +6,8 @@ services:
       - "53:53/udp"
       - "3000:80/tcp"
     environment:
-      TZ: 'America/Chicago'
-      WEBPASSWORD: '$PIHOLE_WEBPASSWORD'
+      - "TZ=America/Chicago"
+      - "WEBPASSWORD=$PIHOLE_WEBPASSWORD"
     volumes:
       - "$VOLUMES_BASE_PATH/pihole_etc:/etc/pihole"
       - "$VOLUMES_BASE_PATH/pihole_dnsmasq_d:/etc/dnsmasq.d'
