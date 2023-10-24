@@ -22,6 +22,20 @@ services:
       - "$VOLUMES_BASE_PATH/adguardhome_work:/opt/adguardhome/work"
     working_dir: "/opt/adguardhome/work"
 
+  syncthing:
+    image: "syncthing/syncthing:lastest"
+    environment:
+      - "PUID=1000"
+      - "PGID=1000"
+    volumes:
+      - "$VOLUMES_BASE_PATH/syncthing_data:/var/syncthing"
+    ports:
+      - "8384:8384"
+      - "22000:22000/tcp"
+      - "22000:22000/udp"
+      - "21027:21027/udp"
+    restart: "always"
+
   cloudflare-tunnel:
     command:
       - "tunnel"
@@ -111,7 +125,6 @@ services:
 
   transmission:
     image: "lscr.io/linuxserver/transmission"
-    container_name: "transmission"
     environment:
       - "PUID=1000"
       - "PGID=1000"
@@ -127,7 +140,6 @@ services:
 
   kavita:
     image: "kizaing/kavita:latest"
-    container_name: "kavita"
     volumes:
       - "$VOLUMES_BASE_PATH/kavita_data/books:/books"
       - "$VOLUMES_BASE_PATH/kavita_config:/kavita/config"
