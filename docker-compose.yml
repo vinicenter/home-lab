@@ -29,6 +29,7 @@ services:
       - "PGID=1000"
     volumes:
       - "$VOLUMES_BASE_PATH/syncthing_data:/var/syncthing"
+    network_mode: "bridge"
     ports:
       - "8384:8384"
       - "22000:22000/tcp"
@@ -132,6 +133,7 @@ services:
     volumes:
       - "$VOLUMES_BASE_PATH/transmission_config:/config"
       - "$VOLUMES_BASE_PATH/transmission_data:/downloads"
+    network_mode: "bridge"
     ports:
       - "9091:9091"
       - "51413:51413"
@@ -145,6 +147,7 @@ services:
       - "$VOLUMES_BASE_PATH/kavita_config:/kavita/config"
     environment:
       - "TZ=America/Sao_Paulo"
+    network_mode: "bridge"
     ports:
       - "5000:5000"
     restart: "unless-stopped"
