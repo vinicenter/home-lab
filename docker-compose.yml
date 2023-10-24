@@ -23,7 +23,7 @@ services:
     working_dir: "/opt/adguardhome/work"
 
   syncthing:
-    image: "syncthing/syncthing:lastest"
+    image: "syncthing/syncthing"
     environment:
       - "PUID=1000"
       - "PGID=1000"
