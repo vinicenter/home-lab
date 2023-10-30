@@ -1,4 +1,16 @@
 services:
+  jackett:
+    image: "lscr.io/linuxserver/jackett:latest"
+    environment:    
+      - "AUTO_UPDATE=true"
+    volumes:
+      - "$VOLUMES_BASE_PATH/jackett_config:/config"
+      - "$VOLUMES_BASE_PATH/jackett_downloads:/downloads"
+    network_mode: "bridge"
+    ports:
+      - "9117:9117"
+    restart: "always"
+
   adguardhome:
     image: "adguard/adguardhome:latest"
     command:
