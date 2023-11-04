@@ -1,25 +1,4 @@
 services:
-  ytdl-material:
-    image: "tzahi12345/youtubedl-material:latest"
-    environment: 
-      ytdl_use_local_db: 'true'
-      write_ytdl_config: 'true'
-    volumes:
-        - "$VOLUMES_BASE_PATH/ytdl-material_data:/app"
-    ports:
-        - "8998:17442"
-    restart: "always"
-  ytdl-material:
-    image: "tzahi12345/youtubedl-material:latest"
-    environment: 
-      ytdl_use_local_db: 'true'
-      write_ytdl_config: 'true'
-    volumes:
-        - "$VOLUMES_BASE_PATH/ytdl-material_data:/app"
-    ports:
-        - "8998:17442"
-    restart: "always"
-
   jackett:
     image: "lscr.io/linuxserver/jackett:latest"
     environment:    
@@ -157,4 +136,15 @@ services:
       - "51413:51413"
       - "51413:51413/udp"
     restart: "unless-stopped"
+
+  ytdl-material:
+    image: "tzahi12345/youtubedl-material:latest"
+    environment: 
+      ytdl_use_local_db: 'true'
+      write_ytdl_config: 'true'
+    volumes:
+        - "$VOLUMES_BASE_PATH/ytdl-material_data:/app"
+    ports:
+        - "8998:17442"
+    restart: "always"
 version: "3.6"
