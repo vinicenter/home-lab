@@ -108,16 +108,6 @@ services:
     profiles:
       - "ceres"
 
-  nginxproxymanager:
-    image: 'jc21/nginx-proxy-manager:latest'
-    restart: "always"
-    network_mode: "host"
-    volumes:
-      - "$VOLUMES_BASE_PATH/nginxproxymanager_data:/data"
-      - "$VOLUMES_BASE_PATH/nginxproxymanager_letsencrypt:/etc/letsencrypt"
-    profiles:
-      - "neptune"
-
   uptime-kuma:
     command:
       - "node"
@@ -140,6 +130,16 @@ services:
       - "$VOLUMES_BASE_PATH/uptime-kuma_data:/app/data"
       - "/var/run/docker.sock:/var/run/docker.sock"
     working_dir: "/app"
+    profiles:
+      - "ceres"
+
+  nginxproxymanager:
+    image: 'jc21/nginx-proxy-manager:latest'
+    restart: "always"
+    network_mode: "host"
+    volumes:
+      - "$VOLUMES_BASE_PATH/nginxproxymanager_data:/data"
+      - "$VOLUMES_BASE_PATH/nginxproxymanager_letsencrypt:/etc/letsencrypt"
     profiles:
       - "neptune"
 version: "3.6"
