@@ -59,31 +59,6 @@ services:
     profiles:
       - "ceres"
 
-  uptime-kuma:
-    command:
-      - "node"
-      - "server/server.js"
-    entrypoint:
-      - "/usr/bin/dumb-init"
-      - "--"
-      - "extra/entrypoint.sh"
-    environment:
-      - "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-      - "NODE_VERSION=16.20.2"
-      - "YARN_VERSION=1.22.19"
-      - "UPTIME_KUMA_IS_CONTAINER=1"
-    image: "louislam/uptime-kuma:latest"
-    network_mode: "bridge"
-    ports:
-      - "3001:3001/tcp"
-    restart: "always"
-    volumes:
-      - "$VOLUMES_BASE_PATH/uptime-kuma_data:/app/data"
-      - "/var/run/docker.sock:/var/run/docker.sock"
-    working_dir: "/app"
-    profiles:
-      - "neptune"
-
   jellyfin:
     entrypoint:
       - "/init"
@@ -132,4 +107,39 @@ services:
     restart: "unless-stopped"
     profiles:
       - "ceres"
+
+  nginxproxymanager:
+    image: 'jc21/nginx-proxy-manager:latest'
+    restart: "always"
+    network_mode: "host"
+    volumes:
+      - "$VOLUMES_BASE_PATH/nginxproxymanager_data:/data"
+      - "$VOLUMES_BASE_PATH/nginxproxymanager_letsencrypt:/etc/letsencrypt"
+    profiles:
+      - "neptune"
+
+  uptime-kuma:
+    command:
+      - "node"
+      - "server/server.js"
+    entrypoint:
+      - "/usr/bin/dumb-init"
+      - "--"
+      - "extra/entrypoint.sh"
+    environment:
+      - "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+      - "NODE_VERSION=16.20.2"
+      - "YARN_VERSION=1.22.19"
+      - "UPTIME_KUMA_IS_CONTAINER=1"
+    image: "louislam/uptime-kuma:latest"
+    network_mode: "bridge"
+    ports:
+      - "3001:3001/tcp"
+    restart: "always"
+    volumes:
+      - "$VOLUMES_BASE_PATH/uptime-kuma_data:/app/data"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    working_dir: "/app"
+    profiles:
+      - "neptune"
 version: "3.6"
