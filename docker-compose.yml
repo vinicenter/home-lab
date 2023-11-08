@@ -10,6 +10,8 @@ services:
     ports:
       - "9117:9117"
     restart: "always"
+    profiles:
+      - "ceres"
 
   adguardhome:
     image: "adguard/adguardhome:latest"
@@ -33,22 +35,8 @@ services:
       - "$VOLUMES_BASE_PATH/adguardhome_conf:/opt/adguardhome/conf"
       - "$VOLUMES_BASE_PATH/adguardhome_work:/opt/adguardhome/work"
     working_dir: "/opt/adguardhome/work"
-
-  cloudflare-tunnel:
-    command:
-      - "tunnel"
-      - "--no-autoupdate"
-      - "run"
-      - "--token"
-      - "$CLOUDFLARE_TUNNEL_TOKEN"
-    entrypoint:
-      - "cloudflared"
-      - "--no-autoupdate"
-    image: "cloudflare/cloudflared:latest"
-    network_mode: "bridge"
-    restart: "always"
-    user: "nonroot"
-    working_dir: "/home/nonroot"
+    profiles:
+      - "ceres"
 
   home-assistant:
     entrypoint:
@@ -68,6 +56,8 @@ services:
     volumes:
       - "$VOLUMES_BASE_PATH/homeassistant_config:/config"
     working_dir: "/config"
+    profiles:
+      - "ceres"
 
   uptime-kuma:
     command:
@@ -91,6 +81,8 @@ services:
       - "$VOLUMES_BASE_PATH/uptime-kuma_data:/app/data"
       - "/var/run/docker.sock:/var/run/docker.sock"
     working_dir: "/app"
+    profiles:
+      - "neptune"
 
   jellyfin:
     entrypoint:
@@ -120,6 +112,8 @@ services:
       - "$VOLUMES_BASE_PATH/jellyfin_config:/config"
       - "$VOLUMES_BASE_PATH/jellyfin_data:/data"
     working_dir: "/"
+    profiles:
+      - "ceres"
 
   transmission:
     image: "lscr.io/linuxserver/transmission"
@@ -136,4 +130,6 @@ services:
       - "51413:51413"
       - "51413:51413/udp"
     restart: "unless-stopped"
+    profiles:
+      - "ceres"
 version: "3.6"
