@@ -131,7 +131,7 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"
     working_dir: "/app"
     profiles:
-      - "ceres"
+      - "neptune"
 
   nginxproxymanager:
     image: 'jc21/nginx-proxy-manager:latest'
