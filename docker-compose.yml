@@ -156,5 +156,4 @@ services:
       - "$VOLUMES_BASE_PATH/nginxproxymanager_letsencrypt:/etc/letsencrypt"
     profiles:
       - "neptune"
-      - "ceres"
 version: "3.6"
