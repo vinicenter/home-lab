@@ -1,4 +1,18 @@
 services:
+  homarr:
+    image: "ghcr.io/ajnart/homarr:latest"
+    restart: "always"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "$VOLUMES_BASE_PATH/homarr_configs:/app/data/configs"
+      - "$VOLUMES_BASE_PATH/homarr_icons:/app/public/icons"
+      - "$VOLUMES_BASE_PATH/homarr_data:/data"
+    network_mode: "bridge"
+    ports:
+      - "7575:7575"
+    profiles:
+      - "ceres"
+
   jackett:
     image: "lscr.io/linuxserver/jackett:latest"
     environment:    
