@@ -1,188 +1,188 @@
 services:
   netdata:
-    image: "netdata/netdata:stable"
-    pid: "host"
-    network_mode: "host"
-    restart: "unless-stopped"
+    image: 'netdata/netdata:stable'
+    pid: 'host'
+    network_mode: 'host'
+    restart: 'unless-stopped'
     cap_add:
-      - "SYS_PTRACE"
-      - "SYS_ADMIN"
+      - 'SYS_PTRACE'
+      - 'SYS_ADMIN'
     security_opt:
-      - "apparmor:unconfined"
+      - 'apparmor:unconfined'
     volumes:
-      - "$VOLUMES_BASE_PATH/netdata_config:/etc/netdata"
-      - "$VOLUMES_BASE_PATH/netdata_lib:/var/lib/netdata"
-      - "$VOLUMES_BASE_PATH/netdata_cache:/var/cache/netdata"
-      - "/etc/passwd:/host/etc/passwd:ro"
-      - "/etc/group:/host/etc/group:ro"
-      - "/etc/localtime:/etc/localtime:ro"
-      - "/proc:/host/proc:ro"
-      - "/sys:/host/sys:ro"
-      - "/etc/os-release:/host/etc/os-release:ro"
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - '$VOLUMES_BASE_PATH/netdata_config:/etc/netdata'
+      - '$VOLUMES_BASE_PATH/netdata_lib:/var/lib/netdata'
+      - '$VOLUMES_BASE_PATH/netdata_cache:/var/cache/netdata'
+      - '/etc/passwd:/host/etc/passwd:ro'
+      - '/etc/group:/host/etc/group:ro'
+      - '/etc/localtime:/etc/localtime:ro'
+      - '/proc:/host/proc:ro'
+      - '/sys:/host/sys:ro'
+      - '/etc/os-release:/host/etc/os-release:ro'
+      - '/var/run/docker.sock:/var/run/docker.sock:ro'
     environment:
-      - "NETDATA_CLAIM_TOKEN=$NETDATA_CLAIM_TOKEN"
-      - "NETDATA_CLAIM_URL=$NETDATA_CLAIM_URL"
-      - "NETDATA_CLAIM_ROOMS=$NETDATA_CLAIM_ROOMS"
+      - 'NETDATA_CLAIM_TOKEN=$NETDATA_CLAIM_TOKEN'
+      - 'NETDATA_CLAIM_URL=$NETDATA_CLAIM_URL'
+      - 'NETDATA_CLAIM_ROOMS=$NETDATA_CLAIM_ROOMS'
     profiles:
-      - "ceres"
-      - "neptune"
+      - 'ceres'
+      - 'neptune'
 
   homarr:
-    image: "ghcr.io/ajnart/homarr:latest"
-    restart: "unless-stopped"
+    image: 'ghcr.io/ajnart/homarr:latest'
+    restart: 'unless-stopped'
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
-      - "$VOLUMES_BASE_PATH/homarr_configs:/app/data/configs"
-      - "$VOLUMES_BASE_PATH/homarr_icons:/app/public/icons"
-      - "$VOLUMES_BASE_PATH/homarr_data:/data"
-    network_mode: "bridge"
+      - '/var/run/docker.sock:/var/run/docker.sock'
+      - '$VOLUMES_BASE_PATH/homarr_configs:/app/data/configs'
+      - '$VOLUMES_BASE_PATH/homarr_icons:/app/public/icons'
+      - '$VOLUMES_BASE_PATH/homarr_data:/data'
+    network_mode: 'bridge'
     ports:
-      - "7575:7575"
+      - '7575:7575'
     profiles:
-      - "ceres"
+      - 'ceres'
 
   jackett:
-    image: "lscr.io/linuxserver/jackett:latest"
+    image: 'lscr.io/linuxserver/jackett:latest'
     environment:    
-      - "AUTO_UPDATE=true"
+      - 'AUTO_UPDATE=true'
     volumes:
-      - "$VOLUMES_BASE_PATH/jackett_config:/config"
-      - "$VOLUMES_BASE_PATH/jackett_downloads:/downloads"
-    network_mode: "bridge"
+      - '$VOLUMES_BASE_PATH/jackett_config:/config'
+      - '$VOLUMES_BASE_PATH/jackett_downloads:/downloads'
+    network_mode: 'bridge'
     ports:
-      - "9117:9117"
-    restart: "unless-stopped"
+      - '9117:9117'
+    restart: 'unless-stopped'
     profiles:
-      - "ceres"
+      - 'ceres'
 
   adguardhome:
-    image: "adguard/adguardhome:latest"
+    image: 'adguard/adguardhome:latest'
     command:
-      - "--no-check-update"
-      - "-c"
-      - "/opt/adguardhome/conf/AdGuardHome.yaml"
-      - "-w"
-      - "/opt/adguardhome/work"
+      - '--no-check-update'
+      - '-c'
+      - '/opt/adguardhome/conf/AdGuardHome.yaml'
+      - '-w'
+      - '/opt/adguardhome/work'
     entrypoint:
-      - "/opt/adguardhome/AdGuardHome"
-    network_mode: "bridge"
+      - '/opt/adguardhome/AdGuardHome'
+    network_mode: 'bridge'
     ports:
-      - "53:53/tcp"
-      - "53:53/udp"
-      - "784:784/udp"
-      - "3000:80/tcp"
-      - "853:853/tcp"
-    restart: "unless-stopped"
+      - '53:53/tcp'
+      - '53:53/udp'
+      - '784:784/udp'
+      - '3000:80/tcp'
+      - '853:853/tcp'
+    restart: 'unless-stopped'
     volumes:
-      - "$VOLUMES_BASE_PATH/adguardhome_conf:/opt/adguardhome/conf"
-      - "$VOLUMES_BASE_PATH/adguardhome_work:/opt/adguardhome/work"
-    working_dir: "/opt/adguardhome/work"
+      - '$VOLUMES_BASE_PATH/adguardhome_conf:/opt/adguardhome/conf'
+      - '$VOLUMES_BASE_PATH/adguardhome_work:/opt/adguardhome/work'
+    working_dir: '/opt/adguardhome/work'
     profiles:
-      - "ceres"
+      - 'ceres'
 
   home-assistant:
     entrypoint:
-      - "/init"
+      - '/init'
     environment:
-      - "PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-      - "LANG=C.UTF-8"
-      - "S6_BEHAVIOUR_IF_STAGE2_FAILS=2"
-      - "S6_CMD_WAIT_FOR_SERVICES_MAXTIME=0"
-      - "S6_CMD_WAIT_FOR_SERVICES=1"
-      - "S6_SERVICES_READYTIME=50"
-      - "WHEELS_LINKS=https://wheels.home-assistant.io/musllinux/"
-      - "S6_SERVICES_GRACETIME=220000"
-    image: "homeassistant/home-assistant:latest"
-    network_mode: "host"
-    restart: "unless-stopped"
+      - 'PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+      - 'LANG=C.UTF-8'
+      - 'S6_BEHAVIOUR_IF_STAGE2_FAILS=2'
+      - 'S6_CMD_WAIT_FOR_SERVICES_MAXTIME=0'
+      - 'S6_CMD_WAIT_FOR_SERVICES=1'
+      - 'S6_SERVICES_READYTIME=50'
+      - 'WHEELS_LINKS=https://wheels.home-assistant.io/musllinux/'
+      - 'S6_SERVICES_GRACETIME=220000'
+    image: 'homeassistant/home-assistant:latest'
+    network_mode: 'host'
+    restart: 'unless-stopped'
     volumes:
-      - "$VOLUMES_BASE_PATH/homeassistant_config:/config"
-    working_dir: "/config"
+      - '$VOLUMES_BASE_PATH/homeassistant_config:/config'
+    working_dir: '/config'
     profiles:
-      - "ceres"
+      - 'ceres'
 
   jellyfin:
     entrypoint:
-      - "/init"
+      - '/init'
     environment:
-      - "PUID=1000"
-      - "PGID=1000"
-      - "TZ=Etc/UTC"
-      - "PATH=/lsiopy/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-      - "HOME=/root"
-      - "LANGUAGE=en_US.UTF-8"
-      - "LANG=en_US.UTF-8"
-      - "TERM=xterm"
-      - "S6_CMD_WAIT_FOR_SERVICES_MAXTIME=0"
-      - "S6_VERBOSITY=1"
-      - "S6_STAGE2_HOOK=/docker-mods"
-      - "VIRTUAL_ENV=/lsiopy"
-      - "LSIO_FIRST_PARTY=true"
-      - "NVIDIA_DRIVER_CAPABILITIES=compute,video,utility"
-    image: "lscr.io/linuxserver/jellyfin:latest"
-    network_mode: "bridge"
+      - 'PUID=1000'
+      - 'PGID=1000'
+      - 'TZ=Etc/UTC'
+      - 'PATH=/lsiopy/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+      - 'HOME=/root'
+      - 'LANGUAGE=en_US.UTF-8'
+      - 'LANG=en_US.UTF-8'
+      - 'TERM=xterm'
+      - 'S6_CMD_WAIT_FOR_SERVICES_MAXTIME=0'
+      - 'S6_VERBOSITY=1'
+      - 'S6_STAGE2_HOOK=/docker-mods'
+      - 'VIRTUAL_ENV=/lsiopy'
+      - 'LSIO_FIRST_PARTY=true'
+      - 'NVIDIA_DRIVER_CAPABILITIES=compute,video,utility'
+    image: 'lscr.io/linuxserver/jellyfin:latest'
+    network_mode: 'bridge'
     ports:
-      - "8096:8096/tcp"
-      - "8920:8920/tcp"
-    restart: "unless-stopped"
+      - '8096:8096/tcp'
+      - '8920:8920/tcp'
+    restart: 'unless-stopped'
     volumes:
-      - "$VOLUMES_BASE_PATH/jellyfin_config:/config"
-      - "$VOLUMES_BASE_PATH/jellyfin_data:/data"
-    working_dir: "/"
+      - '$VOLUMES_BASE_PATH/jellyfin_config:/config'
+      - '$VOLUMES_BASE_PATH/jellyfin_data:/data'
+    working_dir: '/'
     profiles:
-      - "ceres"
+      - 'ceres'
 
   transmission:
-    image: "lscr.io/linuxserver/transmission"
+    image: 'lscr.io/linuxserver/transmission'
     environment:
-      - "PUID=1000"
-      - "PGID=1000"
-      - "TZ=America/Sao_Paulo"
+      - 'PUID=1000'
+      - 'PGID=1000'
+      - 'TZ=America/Sao_Paulo'
     volumes:
-      - "$VOLUMES_BASE_PATH/transmission_config:/config"
-      - "$VOLUMES_BASE_PATH/transmission_data:/downloads"
-    network_mode: "bridge"
+      - '$VOLUMES_BASE_PATH/transmission_config:/config'
+      - '$VOLUMES_BASE_PATH/transmission_data:/downloads'
+    network_mode: 'bridge'
     ports:
-      - "9091:9091"
-      - "51413:51413"
-      - "51413:51413/udp"
-    restart: "unless-stopped"
+      - '9091:9091'
+      - '51413:51413'
+      - '51413:51413/udp'
+    restart: 'unless-stopped'
     profiles:
-      - "ceres"
+      - 'ceres'
 
   uptime-kuma:
     command:
-      - "node"
-      - "server/server.js"
+      - 'node'
+      - 'server/server.js'
     entrypoint:
-      - "/usr/bin/dumb-init"
-      - "--"
-      - "extra/entrypoint.sh"
+      - '/usr/bin/dumb-init'
+      - '--'
+      - 'extra/entrypoint.sh'
     environment:
-      - "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-      - "NODE_VERSION=16.20.2"
-      - "YARN_VERSION=1.22.19"
-      - "UPTIME_KUMA_IS_CONTAINER=1"
-    image: "louislam/uptime-kuma:latest"
-    network_mode: "bridge"
+      - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+      - 'NODE_VERSION=16.20.2'
+      - 'YARN_VERSION=1.22.19'
+      - 'UPTIME_KUMA_IS_CONTAINER=1'
+    image: 'louislam/uptime-kuma:latest'
+    network_mode: 'bridge'
     ports:
-      - "3001:3001/tcp"
-    restart: "unless-stopped"
+      - '3001:3001/tcp'
+    restart: 'unless-stopped'
     volumes:
-      - "$VOLUMES_BASE_PATH/uptime-kuma_data:/app/data"
-      - "/var/run/docker.sock:/var/run/docker.sock"
-    working_dir: "/app"
+      - '$VOLUMES_BASE_PATH/uptime-kuma_data:/app/data'
+      - '/var/run/docker.sock:/var/run/docker.sock'
+    working_dir: '/app'
     profiles:
-      - "neptune"
+      - 'neptune'
 
   nginxproxymanager:
     image: 'jc21/nginx-proxy-manager:latest'
-    restart: "unless-stopped"
-    network_mode: "host"
+    restart: 'unless-stopped'
+    network_mode: 'host'
     volumes:
-      - "$VOLUMES_BASE_PATH/nginxproxymanager_data:/data"
-      - "$VOLUMES_BASE_PATH/nginxproxymanager_letsencrypt:/etc/letsencrypt"
+      - '$VOLUMES_BASE_PATH/nginxproxymanager_data:/data'
+      - '$VOLUMES_BASE_PATH/nginxproxymanager_letsencrypt:/etc/letsencrypt'
     profiles:
-      - "neptune"
-version: "3.6"
+      - 'neptune'
+version: '3.6'
