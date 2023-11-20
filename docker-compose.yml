@@ -3,7 +3,7 @@ services:
     image: "netdata/netdata:stable"
     pid: "host"
     network_mode: "host"
-    restart: "always"
+    restart: "unless-stopped"
     cap_add:
       - "SYS_PTRACE"
       - "SYS_ADMIN"
@@ -30,7 +30,7 @@ services:
 
   homarr:
     image: "ghcr.io/ajnart/homarr:latest"
-    restart: "always"
+    restart: "unless-stopped"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "$VOLUMES_BASE_PATH/homarr_configs:/app/data/configs"
@@ -52,7 +52,7 @@ services:
     network_mode: "bridge"
     ports:
       - "9117:9117"
-    restart: "always"
+    restart: "unless-stopped"
     profiles:
       - "ceres"
 
@@ -73,7 +73,7 @@ services:
       - "784:784/udp"
       - "3000:80/tcp"
       - "853:853/tcp"
-    restart: "always"
+    restart: "unless-stopped"
     volumes:
       - "$VOLUMES_BASE_PATH/adguardhome_conf:/opt/adguardhome/conf"
       - "$VOLUMES_BASE_PATH/adguardhome_work:/opt/adguardhome/work"
@@ -95,7 +95,7 @@ services:
       - "S6_SERVICES_GRACETIME=220000"
     image: "homeassistant/home-assistant:latest"
     network_mode: "host"
-    restart: "always"
+    restart: "unless-stopped"
     volumes:
       - "$VOLUMES_BASE_PATH/homeassistant_config:/config"
     working_dir: "/config"
@@ -168,7 +168,7 @@ services:
     network_mode: "bridge"
     ports:
       - "3001:3001/tcp"
-    restart: "always"
+    restart: "unless-stopped"
     volumes:
       - "$VOLUMES_BASE_PATH/uptime-kuma_data:/app/data"
       - "/var/run/docker.sock:/var/run/docker.sock"
@@ -178,7 +178,7 @@ services:
 
   nginxproxymanager:
     image: 'jc21/nginx-proxy-manager:latest'
-    restart: "always"
+    restart: "unless-stopped"
     network_mode: "host"
     volumes:
       - "$VOLUMES_BASE_PATH/nginxproxymanager_data:/data"
