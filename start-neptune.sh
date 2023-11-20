@@ -2,4 +2,4 @@ BASEDIR=$(dirname "$0")
 cd $BASEDIR
 
 ./.env
-docker compose --profile neptune up
+docker compose --profile neptune up --force-recreate
