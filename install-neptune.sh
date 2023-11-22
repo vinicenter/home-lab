@@ -9,12 +9,12 @@ addForward() {
     local ip=$2
     local remotePort=$3
 
-    "iptables -t nat -A PREROUTING -p tcp --dport $localPort -j DNAT --to-destination $ip:$remotePort"
+    iptables -t nat -A PREROUTING -p tcp --dport $localPort -j DNAT --to-destination $ip:$remotePort
 }
 
 saveNewIptables() {
-    "su -c 'iptables-save > /etc/iptables/rules.v4'"
-    "su -c 'ip6tables-save > /etc/iptables/rules.v6'"
+    su -c 'iptables-save > /etc/iptables/rules.v4'
+    su -c 'ip6tables-save > /etc/iptables/rules.v6'
 }
 
 # install iptables-persistent
