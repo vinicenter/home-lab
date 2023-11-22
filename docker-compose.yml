@@ -174,7 +174,7 @@ services:
       - '/var/run/docker.sock:/var/run/docker.sock'
     working_dir: '/app'
     profiles:
-      - 'neptune'
+      - 'ceres'
 
   nginxproxymanager:
     image: 'jc21/nginx-proxy-manager:latest'
@@ -188,6 +188,5 @@ services:
       - '$VOLUMES_BASE_PATH/nginxproxymanager_data:/data'
       - '$VOLUMES_BASE_PATH/nginxproxymanager_letsencrypt:/etc/letsencrypt'
     profiles:
-      - 'neptune'
       - 'ceres'
 version: '3.6'
