@@ -26,7 +26,6 @@ services:
       - 'NETDATA_CLAIM_ROOMS=$NETDATA_CLAIM_ROOMS'
     profiles:
       - 'ceres'
-      - 'neptune'
 
   homarr:
     image: 'ghcr.io/ajnart/homarr:latest'
