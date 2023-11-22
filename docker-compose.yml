@@ -179,7 +179,11 @@ services:
   nginxproxymanager:
     image: 'jc21/nginx-proxy-manager:latest'
     restart: 'unless-stopped'
-    network_mode: 'host'
+    network_mode: 'bridge'
+    ports:
+      - '80:80'
+      - '443:443'
+      - '81:81'
     volumes:
       - '$VOLUMES_BASE_PATH/nginxproxymanager_data:/data'
       - '$VOLUMES_BASE_PATH/nginxproxymanager_letsencrypt:/etc/letsencrypt'
