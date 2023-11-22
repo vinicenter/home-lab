@@ -1,3 +1,5 @@
+sysctl -w net.ipv4.ip_forward=1
+
 BASEDIR=$(dirname "$0")
 cd $BASEDIR
 
