@@ -24,8 +24,6 @@ services:
       - 'NETDATA_CLAIM_TOKEN=$NETDATA_CLAIM_TOKEN'
       - 'NETDATA_CLAIM_URL=$NETDATA_CLAIM_URL'
       - 'NETDATA_CLAIM_ROOMS=$NETDATA_CLAIM_ROOMS'
-    profiles:
-      - 'ceres'
 
   adguardhome:
     image: 'adguard/adguardhome:latest'
@@ -49,8 +47,6 @@ services:
       - '$VOLUMES_BASE_PATH/adguardhome_conf:/opt/adguardhome/conf'
       - '$VOLUMES_BASE_PATH/adguardhome_work:/opt/adguardhome/work'
     working_dir: '/opt/adguardhome/work'
-    profiles:
-      - 'ceres'
 
   home-assistant:
     entrypoint:
@@ -74,8 +70,6 @@ services:
     volumes:
       - '$VOLUMES_BASE_PATH/homeassistant_config:/config'
     working_dir: '/config'
-    profiles:
-      - 'ceres'
 
   jellyfin:
     entrypoint:
@@ -109,8 +103,6 @@ services:
       - '$VOLUMES_BASE_PATH/jellyfin_config:/config'
       - '$VOLUMES_BASE_PATH/jellyfin_data:/data'
     working_dir: '/'
-    profiles:
-      - 'ceres'
 
   transmission:
     image: 'lscr.io/linuxserver/transmission'
@@ -127,8 +119,6 @@ services:
       - '51413:51413'
       - '51413:51413/udp'
     restart: 'unless-stopped'
-    profiles:
-      - 'ceres'
 
   uptime-kuma:
     command:
@@ -152,35 +142,16 @@ services:
       - '$VOLUMES_BASE_PATH/uptime-kuma_data:/app/data'
       - '/var/run/docker.sock:/var/run/docker.sock'
     working_dir: '/app'
-    profiles:
-      - 'ceres'
 
-  traefik:
-    image: 'traefik:latest'
-    command:
-      - '--api.insecure=true'
-      - '--providers.docker=true'
-      - '--providers.docker.exposedbydefault=false'
-      - '--entrypoints.web.address=:80'
-      - '--entrypoints.websecure.address=:443'
+  nginxproxymanager:
+    image: 'jc21/nginx-proxy-manager:latest'
+    restart: 'unless-stopped'
+    network_mode: 'bridge'
     ports:
       - '80:80'
       - '443:443'
-      - '8080:8080'
+      - '81:81'
     volumes:
-      - '/var/run/docker.sock:/var/run/docker.sock:ro'
-
-  # nginxproxymanager:
-  #   image: 'jc21/nginx-proxy-manager:latest'
-  #   restart: 'unless-stopped'
-  #   network_mode: 'bridge'
-  #   ports:
-  #     - '80:80'
-  #     - '443:443'
-  #     - '81:81'
-  #   volumes:
-  #     - '$VOLUMES_BASE_PATH/nginxproxymanager_data:/data'
-  #     - '$VOLUMES_BASE_PATH/nginxproxymanager_letsencrypt:/etc/letsencrypt'
-  #   profiles:
-  #     - 'ceres'
+      - '$VOLUMES_BASE_PATH/nginxproxymanager_data:/data'
+      - '$VOLUMES_BASE_PATH/nginxproxymanager_letsencrypt:/etc/letsencrypt'
 version: '3.6'

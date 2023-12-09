@@ -4,4 +4,4 @@ BASEDIR=$(dirname "$0")
 cd $BASEDIR
 
 ./.env
-docker compose --profile ceres up --force-recreate
+docker compose up --force-recreate
