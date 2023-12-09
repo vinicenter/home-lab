@@ -63,10 +63,6 @@ services:
     image: 'homeassistant/home-assistant:latest'
     network_mode: 'host'
     restart: 'unless-stopped'
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.homeassistant.rule=Host(`ha.homelab.vini.center`)"
-      - "traefik.http.routers.homeassistant.entrypoints=web"
     volumes:
       - '$VOLUMES_BASE_PATH/homeassistant_config:/config'
     working_dir: '/config'
@@ -91,10 +87,6 @@ services:
       - 'NVIDIA_DRIVER_CAPABILITIES=compute,video,utility'
     image: 'lscr.io/linuxserver/jellyfin:latest'
     network_mode: 'bridge'
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.jellyfin.rule=Host(`jellyfin.homelab.vini.center`)"
-      - "traefik.http.routers.jellyfin.entrypoints=web"
     ports:
       - '8096:8096/tcp'
       - '8920:8920/tcp'
