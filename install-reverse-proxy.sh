@@ -1,4 +1,4 @@
-ceresIp=100.94.31.110
+#!/bin/bash
 
 installIptablesPersistent() {
     apt install iptables-persistent
@@ -20,9 +20,12 @@ saveNewIptables() {
 # install iptables-persistent
 installIptablesPersistent
 
-# add forwarding rules for ceres
-addForward 80 $ceresIp 80
-addForward 443 $ceresIp 443
+echo "Enter target IP: "
+read targetIp
+
+# add forwarding rules for targetIp
+addForward 80 $targetIp 80
+addForward 443 $targetIp 443
 
 # apply NAT
 iptables -t nat -A POSTROUTING -j MASQUERADE
