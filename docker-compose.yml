@@ -20,7 +20,7 @@ services:
       - 8080:8080
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./letsencrypt:/letsencrypt
+      - $VOLUMES_BASE_PATH/traefik_letsencrypt:/letsencrypt
     restart: unless-stopped
 
   adguardhome:
@@ -35,18 +35,17 @@ services:
     entrypoint:
       - /opt/adguardhome/AdGuardHome
     ports:
-      - 53:53/tcp
-      - 53:53/udp
+      - 53:53
       - 784:784
       - 853:853
     expose:
-      - 3000
+      - 80
     labels:
       - traefik.enable=true
       - traefik.http.routers.adguardhome.rule=Host(`adguard.$GATEWAY_HOST`)
       - traefik.http.routers.adguardhome.entrypoints=web,websecure
       - traefik.http.routers.adguardhome.tls.certresolver=letsencrypt
-      - traefik.http.services.adguardhome.loadbalancer.server.port=3000
+      - traefik.http.services.adguardhome.loadbalancer.server.port=80
     volumes:
       - $VOLUMES_BASE_PATH/adguardhome_conf:/opt/adguardhome/conf
       - $VOLUMES_BASE_PATH/adguardhome_work:/opt/adguardhome/work
