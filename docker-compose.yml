@@ -1,149 +1,197 @@
 services:
-  netdata:
-    image: 'netdata/netdata:stable'
-    pid: 'host'
-    network_mode: 'host'
-    restart: 'unless-stopped'
-    cap_add:
-      - 'SYS_PTRACE'
-      - 'SYS_ADMIN'
-    security_opt:
-      - 'apparmor:unconfined'
+  traefik:
+    container_name: traefik
+    image: traefik:v2.10
+    command:
+      - --log.level=DEBUG
+      - --api.insecure=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
+      - --certificatesresolvers.letsencrypt.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory
+      - --certificatesresolvers.letsencrypt.acme.email=viniemidiobosi@gmail.com
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+    ports:
+      - 80:80
+      - 443:443
+      - 8080:8080
     volumes:
-      - '$VOLUMES_BASE_PATH/netdata_config:/etc/netdata'
-      - '$VOLUMES_BASE_PATH/netdata_lib:/var/lib/netdata'
-      - '$VOLUMES_BASE_PATH/netdata_cache:/var/cache/netdata'
-      - '/etc/passwd:/host/etc/passwd:ro'
-      - '/etc/group:/host/etc/group:ro'
-      - '/etc/localtime:/etc/localtime:ro'
-      - '/proc:/host/proc:ro'
-      - '/sys:/host/sys:ro'
-      - '/etc/os-release:/host/etc/os-release:ro'
-      - '/var/run/docker.sock:/var/run/docker.sock:ro'
-    environment:
-      - 'NETDATA_CLAIM_TOKEN=$NETDATA_CLAIM_TOKEN'
-      - 'NETDATA_CLAIM_URL=$NETDATA_CLAIM_URL'
-      - 'NETDATA_CLAIM_ROOMS=$NETDATA_CLAIM_ROOMS'
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./letsencrypt:/letsencrypt
+    restart: unless-stopped
 
   adguardhome:
-    image: 'adguard/adguardhome:latest'
+    container_name: adguardhome
+    image: adguard/adguardhome:latest
     command:
-      - '--no-check-update'
-      - '-c'
-      - '/opt/adguardhome/conf/AdGuardHome.yaml'
-      - '-w'
-      - '/opt/adguardhome/work'
+      - --no-check-update
+      - -c
+      - /opt/adguardhome/conf/AdGuardHome.yaml
+      - -w
+      - /opt/adguardhome/work
     entrypoint:
-      - '/opt/adguardhome/AdGuardHome'
-    network_mode: 'bridge'
+      - /opt/adguardhome/AdGuardHome
     ports:
-      - '53:53/tcp'
-      - '53:53/udp'
-      - '784:784/udp'
-      - '3000:80/tcp'
-      - '853:853/tcp'
-    restart: 'unless-stopped'
+      - 53:53/tcp
+      - 53:53/udp
+      - 784:784
+      - 853:853
+    expose:
+      - 3000
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.adguardhome.rule=Host(`adguard.$GATEWAY_HOST`)
+      - traefik.http.routers.adguardhome.entrypoints=web,websecure
+      - traefik.http.routers.adguardhome.tls.certresolver=letsencrypt
+      - traefik.http.services.adguardhome.loadbalancer.server.port=3000
     volumes:
-      - '$VOLUMES_BASE_PATH/adguardhome_conf:/opt/adguardhome/conf'
-      - '$VOLUMES_BASE_PATH/adguardhome_work:/opt/adguardhome/work'
-    working_dir: '/opt/adguardhome/work'
+      - $VOLUMES_BASE_PATH/adguardhome_conf:/opt/adguardhome/conf
+      - $VOLUMES_BASE_PATH/adguardhome_work:/opt/adguardhome/work
+    working_dir: /opt/adguardhome/work
+    restart: unless-stopped
 
-  home-assistant:
+  homeassistant:
+    container_name: homeassistant
     entrypoint:
-      - '/init'
+      - /init
     environment:
-      - 'PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
-      - 'LANG=C.UTF-8'
-      - 'S6_BEHAVIOUR_IF_STAGE2_FAILS=2'
-      - 'S6_CMD_WAIT_FOR_SERVICES_MAXTIME=0'
-      - 'S6_CMD_WAIT_FOR_SERVICES=1'
-      - 'S6_SERVICES_READYTIME=50'
-      - 'WHEELS_LINKS=https://wheels.home-assistant.io/musllinux/'
-      - 'S6_SERVICES_GRACETIME=220000'
-    image: 'homeassistant/home-assistant:latest'
-    network_mode: 'host'
-    restart: 'unless-stopped'
+      - PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      - LANG=C.UTF-8
+      - S6_BEHAVIOUR_IF_STAGE2_FAILS=2
+      - S6_CMD_WAIT_FOR_SERVICES_MAXTIME=0
+      - S6_CMD_WAIT_FOR_SERVICES=1
+      - S6_SERVICES_READYTIME=50
+      - WHEELS_LINKS=https://wheels.home-assistant.io/musllinux/
+      - S6_SERVICES_GRACETIME=220000
+    image: homeassistant/home-assistant:latest
+    ports:
+      - 5683:5683
+      - 51827:51827
+      - 5353:5353
+      - 1900:1900
+    expose:
+      - 8123
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.homeassistant.rule=Host(`ha.$GATEWAY_HOST`)
+      - traefik.http.routers.homeassistant.entrypoints=web,websecure
+      - traefik.http.routers.homeassistant.tls.certresolver=letsencrypt
+      - traefik.http.services.homeassistant.loadbalancer.server.port=8123
     volumes:
-      - '$VOLUMES_BASE_PATH/homeassistant_config:/config'
-    working_dir: '/config'
+      - $VOLUMES_BASE_PATH/homeassistant_config:/config
+    working_dir: /config
+    restart: unless-stopped
 
   jellyfin:
+    container_name: jellyfin
     entrypoint:
-      - '/init'
+      - /init
     environment:
-      - 'PUID=1000'
-      - 'PGID=1000'
-      - 'TZ=Etc/UTC'
-      - 'PATH=/lsiopy/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
-      - 'HOME=/root'
-      - 'LANGUAGE=en_US.UTF-8'
-      - 'LANG=en_US.UTF-8'
-      - 'TERM=xterm'
-      - 'S6_CMD_WAIT_FOR_SERVICES_MAXTIME=0'
-      - 'S6_VERBOSITY=1'
-      - 'S6_STAGE2_HOOK=/docker-mods'
-      - 'VIRTUAL_ENV=/lsiopy'
-      - 'LSIO_FIRST_PARTY=true'
-      - 'NVIDIA_DRIVER_CAPABILITIES=compute,video,utility'
-    image: 'lscr.io/linuxserver/jellyfin:latest'
-    network_mode: 'bridge'
-    ports:
-      - '8096:8096/tcp'
-      - '8920:8920/tcp'
-    restart: 'unless-stopped'
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - PATH=/lsiopy/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      - HOME=/root
+      - LANGUAGE=en_US.UTF-8
+      - LANG=en_US.UTF-8
+      - TERM=xterm
+      - S6_CMD_WAIT_FOR_SERVICES_MAXTIME=0
+      - S6_VERBOSITY=1
+      - S6_STAGE2_HOOK=/docker-mods
+      - VIRTUAL_ENV=/lsiopy
+      - LSIO_FIRST_PARTY=true
+      - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
+    image: lscr.io/linuxserver/jellyfin:latest
+    expose:
+      - 8096
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.jellyfin.rule=Host(`jellyfin.$GATEWAY_HOST`)
+      - traefik.http.routers.jellyfin.entrypoints=web,websecure
+      - traefik.http.routers.jellyfin.tls.certresolver=letsencrypt
+      - traefik.http.services.jellyfin.loadbalancer.server.port=8096
     volumes:
-      - '$VOLUMES_BASE_PATH/jellyfin_config:/config'
-      - '$VOLUMES_BASE_PATH/jellyfin_data:/data'
-    working_dir: '/'
+      - $VOLUMES_BASE_PATH/jellyfin_config:/config
+      - $VOLUMES_BASE_PATH/jellyfin_data:/data
+    restart: unless-stopped
 
   transmission:
-    image: 'lscr.io/linuxserver/transmission'
+    container_name: transmission
+    image: lscr.io/linuxserver/transmission
     environment:
-      - 'PUID=1000'
-      - 'PGID=1000'
-      - 'TZ=America/Sao_Paulo'
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Sao_Paulo
     volumes:
-      - '$VOLUMES_BASE_PATH/transmission_config:/config'
-      - '$VOLUMES_BASE_PATH/transmission_data:/downloads'
-    network_mode: 'bridge'
+      - $VOLUMES_BASE_PATH/transmission_config:/config
+      - $VOLUMES_BASE_PATH/transmission_data:/downloads
     ports:
-      - '9091:9091'
-      - '51413:51413'
-      - '51413:51413/udp'
-    restart: 'unless-stopped'
+      - 51413
+    expose:
+      - 9091
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.transmission.rule=Host(`transmission.$GATEWAY_HOST`)
+      - traefik.http.routers.transmission.entrypoints=web,websecure
+      - traefik.http.routers.transmission.tls.certresolver=letsencrypt
+      - traefik.http.services.transmission.loadbalancer.server.port=9091
+    restart: unless-stopped
 
-  uptime-kuma:
+  uptimekuma:
+    container_name: uptimekuma
     command:
-      - 'node'
-      - 'server/server.js'
+      - node
+      - server/server.js
     entrypoint:
-      - '/usr/bin/dumb-init'
-      - '--'
-      - 'extra/entrypoint.sh'
+      - /usr/bin/dumb-init
+      - --
+      - extra/entrypoint.sh
     environment:
-      - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
-      - 'NODE_VERSION=16.20.2'
-      - 'YARN_VERSION=1.22.19'
-      - 'UPTIME_KUMA_IS_CONTAINER=1'
-    image: 'louislam/uptime-kuma:latest'
-    network_mode: 'bridge'
-    ports:
-      - '3001:3001/tcp'
-    restart: 'unless-stopped'
+      - PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      - NODE_VERSION=16.20.2
+      - YARN_VERSION=1.22.19
+      - UPTIME_KUMA_IS_CONTAINER=1
+    image: louislam/uptime-kuma:latest
+    expose:
+      - 3001
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.uptimekuma.rule=Host(`uptime.$GATEWAY_HOST`)
+      - traefik.http.routers.uptimekuma.entrypoints=web,websecure
+      - traefik.http.routers.uptimekuma.tls.certresolver=letsencrypt
+      - traefik.http.services.uptimekuma.loadbalancer.server.port=3001
     volumes:
-      - '$VOLUMES_BASE_PATH/uptime-kuma_data:/app/data'
-      - '/var/run/docker.sock:/var/run/docker.sock'
-    working_dir: '/app'
+      - $VOLUMES_BASE_PATH/uptime-kuma_data:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    working_dir: /app
+    restart: unless-stopped
 
-  nginxproxymanager:
-    image: 'jc21/nginx-proxy-manager:latest'
-    restart: 'unless-stopped'
-    network_mode: 'bridge'
-    ports:
-      - '80:80'
-      - '443:443'
-      - '81:81'
+  netdata:
+    container_name: netdata
+    image: netdata/netdata:stable
+    pid: host
+    network_mode: host
+    cap_add:
+      - SYS_PTRACE
+      - SYS_ADMIN
+    security_opt:
+      - apparmor:unconfined
     volumes:
-      - '$VOLUMES_BASE_PATH/nginxproxymanager_data:/data'
-      - '$VOLUMES_BASE_PATH/nginxproxymanager_letsencrypt:/etc/letsencrypt'
+      - $VOLUMES_BASE_PATH/netdata_config:/etc/netdata
+      - $VOLUMES_BASE_PATH/netdata_lib:/var/lib/netdata
+      - $VOLUMES_BASE_PATH/netdata_cache:/var/cache/netdata
+      - /etc/passwd:/host/etc/passwd:ro
+      - /etc/group:/host/etc/group:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /etc/os-release:/host/etc/os-release:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - NETDATA_CLAIM_TOKEN=$NETDATA_CLAIM_TOKEN
+      - NETDATA_CLAIM_URL=$NETDATA_CLAIM_URL
+      - NETDATA_CLAIM_ROOMS=$NETDATA_CLAIM_ROOMS
+    restart: unless-stopped
 version: '3.6'
