@@ -23,6 +23,21 @@ services:
       - $VOLUMES_BASE_PATH/traefik_letsencrypt:/letsencrypt
     restart: unless-stopped
 
+  whoami:
+    container_name: whoami
+    image: traefik/whoami
+    expose:
+      - 80
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.whoami.rule=Host(`whoami.$GATEWAY_HOST`)
+      - traefik.http.routers.whoami.entrypoints=web,websecure
+      - traefik.http.routers.whoami.tls.certresolver=letsencrypt
+      - traefik.http.routers.whoami.middlewares=private@docker
+      - traefik.http.services.whoami.loadbalancer.server.port=80
+      - traefik.http.middlewares.private.ipwhitelist.sourcerange=$GATEWAY_IP_WHITELIST
+    restart: unless-stopped
+
   adguardhome:
     container_name: adguardhome
     image: adguard/adguardhome:latest
@@ -35,9 +50,10 @@ services:
     entrypoint:
       - /opt/adguardhome/AdGuardHome
     ports:
-      - 53:53
-      - 784:784
-      - 853:853
+      - 53:53/udp
+      - 53:53/tcp
+      - 853:853/udp
+      - 853:853/tcp
     expose:
       - 80
     labels:
@@ -45,11 +61,35 @@ services:
       - traefik.http.routers.adguardhome.rule=Host(`adguard.$GATEWAY_HOST`)
       - traefik.http.routers.adguardhome.entrypoints=web,websecure
       - traefik.http.routers.adguardhome.tls.certresolver=letsencrypt
+      - traefik.http.routers.adguardhome.middlewares=private@docker
       - traefik.http.services.adguardhome.loadbalancer.server.port=80
     volumes:
       - $VOLUMES_BASE_PATH/adguardhome_conf:/opt/adguardhome/conf
       - $VOLUMES_BASE_PATH/adguardhome_work:/opt/adguardhome/work
     working_dir: /opt/adguardhome/work
+    restart: unless-stopped
+
+  transmission:
+    container_name: transmission
+    image: lscr.io/linuxserver/transmission
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Sao_Paulo
+    volumes:
+      - $VOLUMES_BASE_PATH/transmission_config:/config
+      - $VOLUMES_BASE_PATH/transmission_data:/downloads
+    ports:
+      - 51413
+    expose:
+      - 9091
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.transmission.rule=Host(`transmission.$GATEWAY_HOST`)
+      - traefik.http.routers.transmission.entrypoints=web,websecure
+      - traefik.http.routers.transmission.tls.certresolver=letsencrypt
+      - traefik.http.routers.transmission.middlewares=private@docker
+      - traefik.http.services.transmission.loadbalancer.server.port=9091
     restart: unless-stopped
 
   homeassistant:
@@ -115,28 +155,6 @@ services:
     volumes:
       - $VOLUMES_BASE_PATH/jellyfin_config:/config
       - $VOLUMES_BASE_PATH/jellyfin_data:/data
-    restart: unless-stopped
-
-  transmission:
-    container_name: transmission
-    image: lscr.io/linuxserver/transmission
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=America/Sao_Paulo
-    volumes:
-      - $VOLUMES_BASE_PATH/transmission_config:/config
-      - $VOLUMES_BASE_PATH/transmission_data:/downloads
-    ports:
-      - 51413
-    expose:
-      - 9091
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.transmission.rule=Host(`transmission.$GATEWAY_HOST`)
-      - traefik.http.routers.transmission.entrypoints=web,websecure
-      - traefik.http.routers.transmission.tls.certresolver=letsencrypt
-      - traefik.http.services.transmission.loadbalancer.server.port=9091
     restart: unless-stopped
 
   uptimekuma:
