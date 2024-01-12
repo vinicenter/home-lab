@@ -33,7 +33,7 @@ services:
       - traefik.http.routers.whoami.rule=Host(`whoami.$GATEWAY_HOST`)
       - traefik.http.routers.whoami.entrypoints=web,websecure
       - traefik.http.routers.whoami.tls.certresolver=letsencrypt
-      - traefik.http.routers.whoami.middlewares=private@docker
+      # - traefik.http.routers.whoami.middlewares=private@docker
       - traefik.http.services.whoami.loadbalancer.server.port=80
       - traefik.http.middlewares.private.ipwhitelist.sourcerange=$GATEWAY_IP_WHITELIST
     restart: unless-stopped
@@ -61,7 +61,7 @@ services:
       - traefik.http.routers.adguardhome.rule=Host(`adguard.$GATEWAY_HOST`)
       - traefik.http.routers.adguardhome.entrypoints=web,websecure
       - traefik.http.routers.adguardhome.tls.certresolver=letsencrypt
-      - traefik.http.routers.adguardhome.middlewares=private@docker
+      # - traefik.http.routers.adguardhome.middlewares=private@docker
       - traefik.http.services.adguardhome.loadbalancer.server.port=80
     volumes:
       - $VOLUMES_BASE_PATH/adguardhome_conf:/opt/adguardhome/conf
