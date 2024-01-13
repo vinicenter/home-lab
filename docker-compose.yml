@@ -185,31 +185,4 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     working_dir: /app
     restart: unless-stopped
-
-  netdata:
-    container_name: netdata
-    image: netdata/netdata:stable
-    pid: host
-    network_mode: host
-    cap_add:
-      - SYS_PTRACE
-      - SYS_ADMIN
-    security_opt:
-      - apparmor:unconfined
-    volumes:
-      - $VOLUMES_BASE_PATH/netdata_config:/etc/netdata
-      - $VOLUMES_BASE_PATH/netdata_lib:/var/lib/netdata
-      - $VOLUMES_BASE_PATH/netdata_cache:/var/cache/netdata
-      - /etc/passwd:/host/etc/passwd:ro
-      - /etc/group:/host/etc/group:ro
-      - /etc/localtime:/etc/localtime:ro
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-      - /etc/os-release:/host/etc/os-release:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    environment:
-      - NETDATA_CLAIM_TOKEN=$NETDATA_CLAIM_TOKEN
-      - NETDATA_CLAIM_URL=$NETDATA_CLAIM_URL
-      - NETDATA_CLAIM_ROOMS=$NETDATA_CLAIM_ROOMS
-    restart: unless-stopped
 version: '3.6'
