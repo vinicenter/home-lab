@@ -93,6 +93,23 @@ services:
       - traefik.http.services.transmission.loadbalancer.server.port=9091
     restart: unless-stopped
 
+  jackett:
+    container_name: jackett
+    image: lscr.io/linuxserver/jackett:latest
+    volumes:
+      - $VOLUMES_BASE_PATH/jackett_config:/config
+      - $VOLUMES_BASE_PATH/jackett_downloads:/downloads
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.jackett.rule=Host(`jackett.$GATEWAY_HOST`)
+      - traefik.http.routers.jackett.entrypoints=web,websecure
+      - traefik.http.routers.jackett.tls.certresolver=letsencrypt
+      - traefik.http.routers.jackett.middlewares=private@docker
+      - traefik.http.services.jackett.loadbalancer.server.port=9117
+    expose:
+      - 9117
+    restart: unless-stopped
+
   homeassistant:
     container_name: homeassistant
     entrypoint:
