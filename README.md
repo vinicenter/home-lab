@@ -1,12 +1,12 @@
 # home-lab
 
-## Reverse Proxy Installation
+## Port Forwarding Installation
 
 ### Introduction
 
-This repository provides a simple solution for setting up a reverse proxy on an external server with public IP address, enabling access to your Docker services over the external network.
+This repository provides a simple solution for setting up a port forwarding on an external server with public IP address, enabling access to your Docker services over the external network.
 
-The reverse proxy is installed on an external server, which is used to route traffic to your Docker services running on your home server.
+The port forwarding is installed on an external server, which is used to route traffic to your Docker services running on your home server.
 
 This is necessary because most home networks do not have a public IP address, which makes it difficult to access your Docker services over the external network.
 
@@ -21,13 +21,13 @@ Before running the installation command, make sure the following prerequisites a
 
 ### Installation
 
-Execute the following command to install the reverse proxy. Ensure that you understand the implications of this command before proceeding:
+Execute the following command to install the port forwarding. Ensure that you understand the implications of this command before proceeding:
 
 ```bash
-bash <(wget -qO- https://raw.githubusercontent.com/vinicenter/home-lab/main/install-reverse-proxy.sh)
+bash <(wget -qO- https://raw.githubusercontent.com/vinicenter/home-lab/main/install-port-forwarding.sh)
 ```
 
-You can see the source code of the installation script [here](https://raw.githubusercontent.com/vinicenter/home-lab/main/install-reverse-proxy.sh)
+You can see the source code of the installation script [here](https://raw.githubusercontent.com/vinicenter/home-lab/main/install-port-forwarding.sh)
 
 This script should be run with root privileges.
 
