@@ -33,6 +33,23 @@ services:
       - $VOLUMES_BASE_PATH/traefik_letsencrypt:/letsencrypt
     restart: unless-stopped
 
+  memos:
+    image: ghcr.io/usememos/memos:latest
+    container_name: memos
+    volumes:
+      - $VOLUMES_BASE_PATH/memos:/var/opt/memos
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.memos.rule=Host(`memos.$GATEWAY_HOST`)
+      - traefik.http.routers.memos.entrypoints=web,websecure
+      - traefik.http.routers.memos.tls.certresolver=letsencrypt
+      - traefik.http.routers.memos.middlewares=private@docker
+      - traefik.http.services.memos.loadbalancer.server.port=5230
+      - traefik.http.middlewares.private.ipwhitelist.sourcerange=$GATEWAY_IP_WHITELIST
+    expose:
+      - 5230
+    restart: unless-stopped
+
   whoami:
     container_name: whoami
     image: traefik/whoami
