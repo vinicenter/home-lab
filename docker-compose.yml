@@ -33,35 +33,27 @@ services:
       - $VOLUMES_BASE_PATH/traefik_letsencrypt:/letsencrypt
     restart: unless-stopped
 
-  adguardhome:
-    container_name: adguardhome
-    image: adguard/adguardhome:latest
-    command:
-      - --no-check-update
-      - -c
-      - /opt/adguardhome/conf/AdGuardHome.yaml
-      - -w
-      - /opt/adguardhome/work
-    entrypoint:
-      - /opt/adguardhome/AdGuardHome
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
     ports:
-      - 53:53/udp
-      - 53:53/tcp
-      - 853:853/udp
-      - 853:853/tcp
+      - "53:53/tcp"
+      - "53:53/udp"
     expose:
       - 80
     labels:
       - traefik.enable=true
-      - traefik.http.routers.adguardhome.rule=Host(`adguard.$GATEWAY_HOST`)
-      - traefik.http.routers.adguardhome.entrypoints=web,websecure
-      - traefik.http.routers.adguardhome.tls.certresolver=letsencrypt
-      - traefik.http.routers.adguardhome.middlewares=private@docker
-      - traefik.http.services.adguardhome.loadbalancer.server.port=80
+      - traefik.http.routers.pihole.rule=Host(`pihole.$GATEWAY_HOST`)
+      - traefik.http.routers.pihole.entrypoints=web,websecure
+      - traefik.http.routers.pihole.tls.certresolver=letsencrypt
+      - traefik.http.routers.pihole.middlewares=private@docker
+      - traefik.http.services.pihole.loadbalancer.server.port=80
+    environment:
+      - WEBPASSWORD=$PIHOLE_WEBPASSWORD
+      - TZ=America/Sao_Paulo
     volumes:
-      - $VOLUMES_BASE_PATH/adguardhome_conf:/opt/adguardhome/conf
-      - $VOLUMES_BASE_PATH/adguardhome_work:/opt/adguardhome/work
-    working_dir: /opt/adguardhome/work
+      - $VOLUMES_BASE_PATH/pihole_etc:/etc/pihole
+      - $VOLUMES_BASE_PATH/pihole_dnsmasq.d:/etc/dnsmasq.d
     restart: unless-stopped
 
   jackett:
