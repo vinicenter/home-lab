@@ -12,20 +12,6 @@ SCRIPT_PATH=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 source $SCRIPT_PATH/.env
 
-portForwardingService="[Unit]
-Description=home-lab-port-forwarding service
-After=network.target
-
-[Service]
-Type=oneshot
-RemainAfterExit=true
-WorkingDirectory=$SCRIPT_PATH/
-ExecStart=/bin/bash enable-port-forwarding.sh
-Restart=on-failure
-
-[Install]
-WantedBy=multi-user.target"
-
 homeLabService="[Unit]
 Description=home-lab service with docker compose
 Requires=docker.service
@@ -73,9 +59,7 @@ title=""
 prompt="Pick an option:"
 options=(
     "Install home-lab service"
-    "Install home-lab-port-forwarding service"
     "Remove home-lab service"
-    "remove home-lab-port-forwarding service"
 )
 
 echo "$title"
@@ -83,9 +67,7 @@ PS3="$prompt "
 select opt in "${options[@]}" "Quit"; do 
     case "$REPLY" in
     1) installService home-lab "$homeLabService";;
-    2) installService home-lab-port-forwarding "$portForwardingService";;
-    3) removeService home-lab;;
-    4) removeService home-lab-port-forwarding;;
+    2) removeService home-lab;;
     $((${#options[@]}+1))) echo "Goodbye!"; break;;
     *) echo "Invalid option. Try another one.";continue;;
     esac
