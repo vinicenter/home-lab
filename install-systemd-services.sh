@@ -20,7 +20,7 @@ After=network.target
 Type=oneshot
 RemainAfterExit=true
 WorkingDirectory=$SCRIPT_PATH/
-ExecStart=/bin/bash apply-port-forwarding.sh $PORT_FORWARDING_TARGET_IP
+ExecStart=/bin/bash enable-port-forwarding.sh $PORT_FORWARDING_TARGET_IP
 Restart=on-failure
 
 [Install]
