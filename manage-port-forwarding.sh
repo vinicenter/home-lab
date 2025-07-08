@@ -68,7 +68,7 @@ select opt in "${options[@]}" "Sair"; do
         4) saveIptables ;;
         5) installIptablesPersistent ;;
         6) enableIpForwarding ;;
-        $((${#options[@]}+1))) echo "Saindo..."; break ;;
-        *) echo "Opção inválida. Tente novamente." ;;
+        $((${#options[@]}+1))) echo "Goodbye..."; break ;;
+        *) echo "Invalid option. Try another one." ;;
     esac
 done
